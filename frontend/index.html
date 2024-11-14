@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT Viewer</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #121212; color: #fff; }
+    .container { max-width: 600px; margin: auto; padding: 20px; }
+    .message { margin-bottom: 10px; }
+    .human { color: #4A90E2; font-weight: bold; }
+    .ai { color: #A9A9A9; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Share a ChatGPT Conversation</h1>
+    <input type="text" id="link" placeholder="Paste ChatGPT shared link" style="width: 100%; padding: 8px;">
+    <button onclick="shareLink()">Share</button>
+    
+    <h2>Latest Conversations</h2>
+    <div id="chats"></div>
+  </div>
+
+  <script>
+    async function shareLink() {
+      const link = document.getElementById('link').value;
+      const response = await fetch('http://localhost:5000/api/parse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ link })
+      });
+      if (response.ok) {
+        alert('Link shared successfully!');
+        loadChats();
+      } else {
+        alert('Failed to share link');
+      }
+    }
+
+    async function loadChats() {
+      const response = await fetch('http://localhost:5000/api/chats');
+      const chats = await response.json();
+      const chatsDiv = document.getElementById('chats');
+      chatsDiv.innerHTML = '';
+      chats.forEach(chat => {
+        chatsDiv.innerHTML += `
+          <div class="message">
+            <p class="human">Human: ${chat.human}</p>
+            <p class="ai">AI: ${chat.ai}</p>
+          </div>
+        `;
+      });
+    }
+
+    
+    loadChats();
+  </script>
+</body>
+</html>
